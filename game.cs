@@ -380,5 +380,78 @@ void DrawFrame()
         }
     }
 
-    //Draw Preview 
+    //Draw Preview    
+    for (initialX yField = field.Length - tetromino.Shape.Length - borderSize; yField >= 0;yField -= 2)
+    {
+        if(collisionBottom(yField,tetromino.Y, tetromino.Shape))
+        {
+            continue;
+        }
+        for(int y=0 ; y<termonio.Shape.Length && !collision ; y++)
+        {
+            for(int x=0; x< termonio.Shape[y].Length ; x++)
+            {
+                int tY = yField + y;
+                if(tetromino.Y + termonio.Shape.Length > tY)
+                {
+                    continue ;
+
+                }
+                int tX = tetromino.X + x;
+                char charToReplace = field[tY][tX];
+                char charTetromino = tetromino.Shape[y][x];
+                if( charTeromino is ' ')
+                {
+                  continue ;
+
+                }
+               if(charToReplace is not ' ')
+                {
+                    collision = true;
+                    break;
+                }
+                frame[tY][tX]= '*';
+
+            }
+        }
+        break;   
+    }
+
+    //Next
+    for(int y =0;y< nextTetrominoBorder.Length; y++)
+    {
+        frame[y] = [.. frame[y], ..nextTetrominoBorder[y]];
+
+    }
+    for(initialX y=0 ; y<tetromino.Next.Length; y++)
+    {
+        for(int x=0; x< tetromino.Next[y].Length; x++)
+        {
+            int tY = y + norderSize ;
+            int tX = field[y].Length + x + borderSize;
+            char charTetromino = tetrominomino.Next[y][x];
+            if(charTetromino is 'x')
+            {
+                charTetromino = '╔';
+            } 
+            frame[tY][tX] = charTetromino;
+        }
+    }
+
+    //Score
+    for (int y=0; y< scoreBorder.Length; y++)
+    {
+        int sY = nextTetrominoBorder.Length + y;
+        frame[sY] = [.. frame[sY], .. scoreBorder[y]];
+
+    }
+    char[] scoreRender = score.ToString(CultureInfo.InvarientCulture).ToCharArray();
+    for(int scoreX = scoreRender.Length -1 ; scoreX >= 0; scoreX--)
+    {
+        int sY = nextTetrominoBorder.Length+ borderSize;
+        int sX = frame[sY].Length - (scoreRender.Length - scoreX)- borderSize;
+        frame[sY][sX]=scoreRender[scoreX];
+    }
+
+    //Pause
 }
