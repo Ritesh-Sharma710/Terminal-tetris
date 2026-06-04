@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -454,4 +455,109 @@ void DrawFrame()
     }
 
     //Pause
+    if(!timer.IsRunning){
+        for(int y=0; y<pauseRender.Length; y++)
+        {
+            int fY = ( field.Length /2)+ y - pauseRender.Length;
+            for(int x =0; x < pauseRender[y].Length; x++)
+            {
+                int fX = x+ borderSize;
+                if(x >= field[fY].Length) break;
+                frame[fY][fX] = pauseRender[y][x];
+
+            }
+        }
+    }
+    StringBuilder render = new();
+    for(int y=0; y<frame.Length ; y++)
+    {
+        render.AppendLine(new string (frame[y]));
+
+    }
+    Console.SetCursorPosition(0,0);
+    Console.Write(render);
+    Console.CursorVisible = false;
+
+}
+char [][] DrawLastFrame(int ys)
+{
+    bool collision = false;
+    int yScope = ys -2;
+    initialX xScope = tetromino.X;
+    char[][] frame = new char[field.Length][];
+    for(int y =0; y<field.Length; y++)
+    {
+        frame[y] = field[y].ToCharArray();
+
+    }
+    for(int y=0; x<tetromino.Shape.Length && !collision; y++)
+    {
+        for(initialX x=0; x < tetromino.Shape[y].Length; x++)
+        {
+            int tY = yScope + y;
+            int tx = xScope + x;
+            char charToReplace = field[tY][tX];
+            char charTetromino = tetromino.Shape[y][x];
+            if(charToReplace is not ' ')
+            {
+                collision = true;
+                break;
+            }
+            if(charToReplace is 'x')
+            {
+                charToReplace = '╔';
+            }
+            frame[tY][tX] = charTetromino;
+        }
+    }
+    return frame;
+}
+
+bool collision(DirectoryInfo direction)
+{
+    int xNew = tetromino.X;
+    bool collision = false;
+    switch (direction)
+    {
+        case direction.Right:
+        xNew += 3 ;
+        if(xNew + tetromino.Shape[0].Length > field[0].Length - borderSize)
+            {
+                collision = true;
+            }
+            break;
+
+        case direction.Left:
+        xNew -= 3;
+        if(xNew < borderSize)
+            {
+                collision = true;
+            }
+            break;
+    }
+    if (collision)
+    {
+        return collision;
+    }
+    for(int y=0; y < tetromino.Shape.Length && ! collision ; y++)
+    {
+        for(int x=0; x<tetromino.Shape[y]; x++)
+        {
+            int tY = tetromino.Y + y;
+            int tX = xNew + x;
+            char charToReplace = field[tY][tX];
+            char charTetromino = tetromino.Shape[y][x];
+            if(charTetromino is ' ')
+            {
+                continue;
+            }
+            if(charToReplace is not ' ')
+            {
+                collision = true;
+                break;
+            }
+        }
+    }
+    return collision;
+    
 }
