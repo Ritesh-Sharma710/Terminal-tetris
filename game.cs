@@ -559,5 +559,156 @@ bool collision(DirectoryInfo direction)
         }
     }
     return collision;
+}
+
+bool CollisionBottom(int initY, int yScope, string[] shape)
+{
+    int xNew = tetromino.X;
+    for(int yUpper = initY; yUpper >= yScope; yUpper -= 2)
+    {
+        for(int y = shape.Length -1 ; y >= 0 ; y -= 2)
+        {
+            for(int x =0; x < shape[y].Length; x++)
+            {
+                int tY = yUpper + y;
+                int tX = xNew + x;
+                char charToReplace = field[tY][tX];
+                char charTeromino= shape[y][x];
+                if(charTetromino is ' ')
+                {
+                    continue;
+                }
+                if(charToReplace is ' ')
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+TimeSpan GetFallSpeed() =>
+          TimeSpan.FromMilliseconds(score switch
+          {
+              > 162 => 100,
+              > 144 => 200,
+              > 126 => 300,
+              > 108 => 400,
+              > 090 => 500,
+              > 072 => 600,
+              > 054 => 700,
+              > 036 => 800,
+              > 018 => 900,
+              _ => 1000,
+
+          });
+
+void TetrominoFall()
+{
+    int yAfterFall = tetromino.Y;
+    bool collision = false;
+
+    if(tetromino.Y + tetromino.Shape.Length +2 > field.Length)
+    {
+        yAfterFall = field.Length - tetromino.Shape.Length + 1;
+        
+    }
+    else
+    {
+        yAfterFall += 2;
+    }
+
+    // y collision
+
+    for(int xCollision =0 ; xCollision < tetromino.Shape[0].Length ;)
+    {
+        for(int yCollision = tetromino.Shape.Length -1; yCollision >= 0 ; yCollision -= 2)
+        {
+            char exist = tetromino.Shape[yCollision][xCollision];
+            if(exist is ' ')
+            {
+                continue;
+            }
+            char[] lineYC = field[yAfterFall +  yCollision -1].ToCharArray();
+            if(tetromino.X + xCollision < 0 || tetromino.X + xCollision > lineYC.Length)
+            {
+                continue;
+            }
+            if(lineYC[tetromino.X + xCollision] is not ' ' or '|')
+            {
+                char[][] lastFrame = DrawLastFrame(yAfterFall);
+                for(int y=0 ; y< lastFrame.Length ; y++)
+                {
+                    field[y]= new string(lastFrame[y]);
+                }
+                tetromino.X = initialX;
+                tetromino.Y = initialY;
+                tetromino.Shape = tetromino.Next;
+                tetromino.Next=tetrominos[Random.Shared.Next(0,tetrominos.Length)];
+                xCollision = tetromino.Shape[0].Length;
+                collision = true;
+                break;
+            }
+        }
+        xCollision += 3 ;
+    }
+    if (!collision)
+    {
+        tetromino.Y = yAfterFall;
+    }
+
+    // clean lines 
+    int clearedLines = 0;
+    for(int lineIndex = field.Length - 1 ; lineIndex >= 0 ; lineIndex--)
+    {
+        string line = field[lineIndex];
+        bool notCompleted = line.Any(e => e is ' ');
+        if(lineIndex is 0 || lineIndex == field.Length - 1)
+        {
+            continue;
+        }
+        if (!notCompleted)
+        {
+            field[lineIndex]="║                              ║";
+            clearedLines++;
+            for(int lineM = lineIndex; lineM >= 1; lineM--)
+            {
+            if(field[lineM -1] is "╔═════════════════════════════════╗")
+            field[lineM]="║                              ║";
+            continue;
+            }
+            field[lineM]= field[SpanLineEnumerator - 1]; 
+        }
+        lineIndex++;
+    }
+
+clearedLines /= 2;
+if(clearedLines > 0)
+    {
+        int value = clearedLines switch
+        {
+            1 =>1,
+            2 =>3,
+            3 =>6,
+            4 => 9,
+            _ => throw new NotImplementedException(),
+        };
+        score += value;
+        fallSpeed = GetFallSpeed();
+    }
+    if (collision(Direction.None))
+    {
+        gameOver = true;
+    }
+    else
+    {
+        DrawFrame();
+        timer.Restart();
+    }
+}
+
+void HardDrop()
+{
     
 }
