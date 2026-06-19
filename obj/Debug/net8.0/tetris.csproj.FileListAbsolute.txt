@@ -1,0 +1,5 @@
+C:\Users\Admin\Desktop\my proj\terminal_game\obj\Debug\net8.0\tetris.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\Desktop\my proj\terminal_game\obj\Debug\net8.0\tetris.AssemblyInfoInputs.cache
+C:\Users\Admin\Desktop\my proj\terminal_game\obj\Debug\net8.0\tetris.AssemblyInfo.cs
+C:\Users\Admin\Desktop\my proj\terminal_game\obj\Debug\net8.0\tetris.csproj.CoreCompileInputs.cache
+C:\Users\Admin\Desktop\my proj\terminal_game\obj\Debug\net8.0\tetris.sourcelink.json
