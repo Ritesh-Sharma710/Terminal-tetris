@@ -710,5 +710,168 @@ if(clearedLines > 0)
 
 void HardDrop()
 {
-    
+   int y = tetromino.Y;
+   int x = tetromino.X;
+   for(int yField = field.Length - tetromino.Shape.Length - borderSize; yField >=0 ; yField -=2)
+    {
+        if(CollisionBottom(yField, y, tetromino.Shape))
+        {
+            continue;
+        }
+        tetromino.Y = yField;
+        break;
+    } 
+    DrawFrame();
+    timer.Restart();
+
+}
+
+void TetrominoSpin(DirectoryInfo spinDirection)
+{
+    int yScope = tetromino.Y;
+    int xScope = tetromino.X;
+    int newY =0;
+    int rowEven =0;
+    int rowOdd =0;
+
+    //turn
+    for(int y = 0; y < tetromino.Shape.Length;)
+    {
+        switch (spinDirection)
+        {
+            case Direction.Right:
+                SpinRight(newShape, tetromino.Shape, ref newY, rowEven, rowOdd, y);
+                break;
+            case Direction.Left:
+                SpinLeft(newShape, tetromino.Shape, ref newY, rowEven, rowOdd, y);
+                break;  
+        }
+        newY =0;
+        rowEven +=2;
+        rowOdd +=2;
+        y +=2;
+    }
+
+
+    //old pivot
+    (int y , int x ) offsetOP = (0,0);
+    for(int y=0 ; y<tetromino.Shape.Length; y += 2)
+    {
+        for(int x=0 ; x<tetromino.Shape[y].Length; x += 2)
+        {
+            if(tetromino.Shape[y][x] is 'x')
+            {
+                offsetOPOP = (y/2, x/3);
+                y = tetromino.Shape.Length;
+                break;
+            }
+        }
+    }
+
+    //new pivot
+    (int y, int x) offsetNP = (0,0);
+    for(int y=0; y < newShape.Length; y +=2)
+    {
+        for(int x=0 ; x<tetromino.Shape[y].Length; x += 2)
+        {
+            if(newShape[y][x] is 'x')
+            {
+                offsetNP = (y/2,x/3);
+                y = newShape.Length;
+                break;
+            }
+        }
+    }
+
+    yScope += (offsetOP.y - offsetNP.y) = 2;
+    xScope += (offsetOP.x - offsetNP.x) = 3;
+
+    //tetromino square(0) special case
+    if(newShape.Length/2 == newShape[0].Length / 3)
+    {
+        yScope = tetromino.Y;
+        xScope = tetromino.X;
+    }
+
+    // tetromino i special case
+    else if (newShape.Length is 8 && newShape[0].Length is 3 && offsetNP.y is 2)
+    {
+        newShape[2] = "x─╮";
+        newShape[4] = "╭─╮";
+        yScope += 2;
+    }
+
+    if(xScope <1 || yScope < 1)
+    {
+        return;
+    }
+
+    // verified collision
+    for(int y=0 ; y< newShape.Length-1; y++)
+    {
+        for(int x=0 ; x< newShape[y].Length; x++)
+        {
+            if(newShape[y][x] is ' ')
+            {
+                continue;
+            }
+            char c = field[yScope + y][xScope + x];
+            if(c is not ' ')
+            {
+                return;
+            }
+        }
+    }
+    tetromino.Y = yScope;
+    tetromino.X = xScope;
+    tetromino.Shape = newShape;
+
+}
+
+void SpinLeft(string[] newShape, string[] shape, ref int newY, int rowEven, int rowOdd, int y)
+{
+    for(int x = shape[y].Length - 1; x >= 0; x -= 3)
+    {
+        for(int xS =2; xS >= 0; xS--)
+        {
+            newShape[newY] += shape[rowEven][x-xS];
+            newShape[newY+1] += shape[rowOdd][x-xS]; 
+        }
+        newY += 2;
+    }
+}
+
+
+void SpinRight(string[] newShape, string[] shape, ref int newY, int rowEven, int roeOdd, int y)
+{
+    for(int x =2; x<shape[y].Length; x+= 3)
+    {
+       if(newShape[newY] is null)
+        {
+            newShape[newY]="";
+            newShape[newY + 1]="";
+        }
+        for(int xS =0 ; xS <= 2; xS++)
+        {
+            newShape[newY] = newShape[newY].Insert(0, shape[rowEven]-[x-xS].ToString(CulturalInfo.TnvariantCulture));
+            newShape[newY +1] = newShape[newY + 1].Insert(0, shape[rowOdd]-[x-xS].ToString(CulturalInfo.TnvariantCulture));
+        }
+        newY += 2 ;
+
+    }
+}
+
+class Tetromino
+{
+   public required string[] Shape{get; set; }
+   public required string[] Next{get; set; }
+   public int X {get; set; }
+   public int Y {get; set; }
+}
+
+enum Direction
+{
+    None,
+    Right,
+    Left,
 }
